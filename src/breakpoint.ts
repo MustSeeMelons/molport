@@ -5,7 +5,7 @@ interface Breakpoint {
   XL: string;
 }
 
-const breakpoint: Breakpoint = {
+export const breakpoint: Breakpoint = {
   SM: "400px",
   MD: "720px",
   LG: "1280px",

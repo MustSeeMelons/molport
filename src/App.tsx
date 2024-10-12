@@ -1,25 +1,53 @@
 import styled from "styled-components";
-import { Device } from "./breakpoint";
+import { breakpoint, Device } from "./breakpoint";
+import { RegistrationForm } from "./components/forms/registration-form";
+import { Header } from "./components/header";
+import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { UploadForm } from "./components/forms/upload-form";
 
 const Container = styled.div`
-  background-color: ${(p) => p.theme.colors.danger};
-  color: red;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
 
   @media ${Device.MD} {
-    background-color: ${(p) => p.theme.colors.accentHover};
-    color: red;
+    padding: 32px;
+  }
+`;
+
+const ContentContainer = styled.div`
+  width: 100%;
+
+  @media ${Device.LG} {
+    max-width: ${breakpoint.LG};
+  }
+
+  @media ${Device.XL} {
+    max-width: ${breakpoint.XL};
   }
 `;
 
 function App() {
-  // TODO sidebar for routes
-  // TODO 1. registration route
-  // XXX select an existing supplier from a list for catalog upload?
-  // TODO 2. catalog upload route
-  // TODO upload xlsx
-  // TODO display
-  // XXX link catalog to selected supplier
-  return <Container>content</Container>;
+  useEffect(() => {
+    // TODO fetch xlx's
+  }, []);
+
+  return (
+    <Container>
+      <Header />
+      <ContentContainer>
+        <Routes>
+          {/* XXX add landing page */}
+          <Route path="/register" element={<RegistrationForm />} />
+          <Route path="/upload" element={<UploadForm />} />
+          {/* XXX add proper 404 page */}
+          <Route path="*" element={<RegistrationForm />} />
+        </Routes>
+      </ContentContainer>
+    </Container>
+  );
 }
 
 export default App;

@@ -21,5 +21,8 @@ export const StandardTheme: DefaultTheme = {
     neutral: "#eceff3",
     linkColor: "#201232",
     navLinks: "#817a8c",
+    textElement: "#554b63 ",
+    inputBackground: "#fafafa",
+    background: "#ffffff",
   },
 };

@@ -1,3 +1,13 @@
+# Technical task
+
+## Requirements 
+
+A recent version of NodeJS (together with npm) installed.
+
+## How to
+
+Run `npm i` in the project directory followed by `npm run dev` to launch the app.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { globalReducer } from "./global-slice";
+import { formReducer } from "./form-slice";
 
 export const store = configureStore({
   reducer: {
     globalReducer,
+    formReducer,
   },
   devTools: true,
 });

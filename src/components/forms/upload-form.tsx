@@ -9,6 +9,10 @@ import {
 import { FormLabel } from "../form-label";
 import { Select } from "../select";
 import { FormInput } from "../form-input";
+import { ICatalogEntry, setSupplierCatalog } from "../../store/global-slice";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { useEffect, useState } from "react";
+import { parseCatalog } from "../../xlsx-functions";
 
 const Container = styled.form``;
 
@@ -63,148 +67,136 @@ const tableHeadings: string[] = [
   "Direct Shipping Price (USD)",
 ];
 
-// XXX dummy test data
-interface ICatalogEntry {
-  molportId: string;
-  supplier: string;
-  SMILES: string;
-  sellUnit: number;
-  measure: string;
-  price: number;
-  directShippingTime: number;
-  directShippingPrice: number;
-}
-
-const produce: ICatalogEntry[] = [
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-  {
-    molportId: "Molport-000-000-277",
-    supplier: "BIONET - Key Organics Ltd.",
-    SMILES: "Oc1c(CC=C)cccc1C=O",
-    sellUnit: 1,
-    measure: "g",
-    price: 80,
-    directShippingPrice: 100,
-    directShippingTime: 3,
-  },
-];
-
 export const UploadForm = () => {
+  const suppliers = useAppSelector((state) => state.globalReducer.suppliers);
+  const [selectedSupplier, setSupplier] = useState<string | undefined>();
+  const [catalog, setCatalog] = useState<ICatalogEntry[]>([]);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!selectedSupplier && suppliers.length > 0) {
+      setSupplier(suppliers[0].name);
+    }
+  }, [suppliers]);
+
+  const renderTable = () => {
+    if (catalog.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <FormTitle>Catalog preview</FormTitle>
+        {/* XXX Depending on complexity we might want to add a table library */}
+        <TableContainer>
+          <Table>
+            <thead>
+              <TableHeadingRow>
+                {tableHeadings.map((h, index) => (
+                  <TableHeading key={`heading-${index}`}>{h}</TableHeading>
+                ))}
+              </TableHeadingRow>
+            </thead>
+            <tbody>
+              {catalog.map((p, index) => {
+                return (
+                  <TableRow key={`row-${index}`}>
+                    <TadleData>{p["Molport ID"]}</TadleData>
+                    <TadleData>{p.Supplier}</TadleData>
+                    <TadleData>{p.SMILES}</TadleData>
+                    <TadleData>{p["Sell Unit"]}</TadleData>
+                    <TadleData>{p.Measure}</TadleData>
+                    <TadleData>{p["Price (USD)"]}</TadleData>
+                    <TadleData>{p["Direct Shipping Time (Days)"]}</TadleData>
+                    <TadleData>{p["Direct Shipping Price (USD)"]}</TadleData>
+                  </TableRow>
+                );
+              })}
+            </tbody>
+          </Table>
+        </TableContainer>
+      </>
+    );
+  };
+
   return (
     <Container>
       <FormTitle>Upload catalog</FormTitle>
       <FormContentContainer>
         <InputContainer>
           <FormLabel htmlFor="country">Supplier</FormLabel>
-          <Select id="supplier" type="text">
-            <option value=""></option>
-            <option value="Option 1">Option 1</option>
-            <option value="Option 2">Option 2</option>
-            <option value="Option 3">Option 3</option>
-            <option value="Option 4">Option 4</option>
-            <option value="Option 5">Option 5</option>
+          <Select
+            id="supplier"
+            type="text"
+            value={selectedSupplier}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setSupplier(e.target.value);
+            }}
+          >
+            {suppliers.map((s, index) => {
+              return (
+                <option
+                  key={`supplier-${index}`}
+                  // XXX we don't have a good id field in the data, using name
+                  value={s.name}
+                >
+                  {s.name}
+                </option>
+              );
+            })}
           </Select>
         </InputContainer>
         <InputContainer>
           <FormLabel htmlFor="catalog">File</FormLabel>
-          <FormInput id="catalog" type="file"></FormInput>
+          <FormInput
+            id="catalog"
+            type="file"
+            accept=".xlsx"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              if (e.target.files) {
+                const file = e.target.files[0];
+
+                const reader = new FileReader();
+
+                reader.onload = (readerResult) => {
+                  if (readerResult.target && readerResult.target?.result) {
+                    const categories = parseCatalog(
+                      readerResult.target.result as ArrayBuffer
+                    );
+
+                    setCatalog(categories);
+                  }
+                };
+
+                reader.readAsArrayBuffer(file);
+              }
+            }}
+          ></FormInput>
         </InputContainer>
         <ButtonContainer>
+          {/* XXX disable button if we have no file selected */}
           <FormButton
             tabIndex={0}
             type="button"
             onClick={() => {
-              console.log("klik");
+              if (catalog.length > 0) {
+                // XXX lock ui, show some spinner
+                dispatch(
+                  setSupplierCatalog({
+                    catalog: catalog,
+                    supplierName: selectedSupplier ?? "",
+                  })
+                );
+              } else {
+                console.warn(`Nothing to add yet`);
+              }
             }}
           >
             Upload
           </FormButton>
         </ButtonContainer>
       </FormContentContainer>
-      <FormTitle>Catalog preview</FormTitle>
-      {/* XXX Depending on complexity we might want to add a table library */}
-      <TableContainer>
-        <Table>
-          <TableHeadingRow>
-            {tableHeadings.map((h) => (
-              <TableHeading>{h}</TableHeading>
-            ))}
-          </TableHeadingRow>
-          {produce.map((p) => {
-            return (
-              <TableRow>
-                <TadleData>{p.molportId}</TadleData>
-                <TadleData>{p.supplier}</TadleData>
-                <TadleData>{p.SMILES}</TadleData>
-                <TadleData>{p.sellUnit}</TadleData>
-                <TadleData>{p.measure}</TadleData>
-                <TadleData>{p.price}</TadleData>
-                <TadleData>{p.directShippingTime}</TadleData>
-                <TadleData>{p.directShippingPrice}</TadleData>
-              </TableRow>
-            );
-          })}
-        </Table>
-      </TableContainer>
+      {renderTable()}
     </Container>
   );
 };

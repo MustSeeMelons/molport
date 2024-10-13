@@ -40,6 +40,7 @@ export const FormInput: React.FC<FormInputProps> = (props) => {
   return (
     <Container
       id={props.id}
+      accept={props.accept}
       type={props.type}
       className={props.className}
       onChange={props.onChange}

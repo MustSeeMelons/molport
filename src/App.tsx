@@ -5,6 +5,8 @@ import { Header } from "./components/header";
 import { Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { UploadForm } from "./components/forms/upload-form";
+import { useAppDispatch } from "./store/store";
+import { fetchInitialData } from "./store/actions/global-actions";
 
 const Container = styled.div`
   display: flex;
@@ -30,8 +32,11 @@ const ContentContainer = styled.div`
 `;
 
 function App() {
+  const dispatch = useAppDispatch();
+
+  // Fetch the initial XLSX data
   useEffect(() => {
-    // TODO fetch xlx's
+    dispatch(fetchInitialData());
   }, []);
 
   return (
